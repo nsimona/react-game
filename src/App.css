@@ -1,0 +1,33 @@
+.fa-star{
+    padding: 10px 35px;
+    font-size: 22px;
+}
+#root{
+    padding: 50px;
+}
+.card {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 30px 0;
+    padding: 5px 0;
+}
+span{
+    text-align: center;
+    margin: 0 10px;
+    background-color: #ccc;
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    border-radius: 50%;
+    line-height: 27px;
+}
+.card .selected {
+    background-color: #eee;
+    color: #ddd;
+    cursor: not-allowed;
+}
+.card .used{
+    background-color: #aaddaa;
+    color: #99bb99;
+    cursor: not-allowed;
+}
