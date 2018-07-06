@@ -5,9 +5,11 @@
     margin: 0;
     padding: 0
 }
+body {
+    background-color: #313344;
+}
 
 .main {
-    background-color: #313344;
     position: relative;
     color: #fff;
 }
@@ -34,6 +36,7 @@
     text-align: center;
     width: 100%;
     height: 100vh;
+    overflow: hidden;
 }
 
 .inner-scene {
@@ -58,7 +61,7 @@
     clear: both;
 }
 .game-container{
-    width: 1500px;
+    width: 90%;
     margin: 80px auto 20px;
     overflow: hidden;
     color: #fff;
@@ -142,7 +145,7 @@ span.number{
     color: #99bb99;
     cursor: not-allowed;
 }
-.done-status{
+.done-status, .init-game-overlay{
     color: #fff;
     width: 100%;
     height: 100%;
@@ -154,12 +157,15 @@ span.number{
     align-items: center;
     justify-content: center;
 }
-.done-status-content{
+.done-status-content, .init-game-content{
     width:25%;
     height: 30%;
     border-radius: 10px;
     padding: 50px;
     background-color: #313344;
+}
+input{
+    color: #000;
 }
 .done-status-content h2 {
     font-weight: 900;

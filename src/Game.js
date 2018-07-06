@@ -22,9 +22,12 @@ let possibleCombinationSum = function(arr, n) {
 };
 
 class Stars extends Component {
+    shouldComponentUpdate(nextProps) {
+        return this.props.randomStars !== nextProps.randomStars;
+    };
     renderStars = () => {
         let stars =[];
-        for (let i=0; i< this.props.randomStars; i++){
+        for (let i=0; i< this.props.randomStars ; i++){
             let star = _.random(1, 9);
             stars.push(<img key={i} src={`images/stars/${star}.png`} alt={`star ${star}`}/>)
         }
@@ -51,12 +54,28 @@ const Button =(props) => {
         default:
             button =  <button className='btn' onClick={props.checkAnswer} disabled={props.selectedNumbers.length === 0} style={{color: '#000'}}>=</button>
     }
-    //let btnState; danger, warning, btn-info
+    let btnState={
+        danger: 'danger',
+        warning: 'warning',
+        info: 'info'
+    };
+    let btnClass = () =>{
+        if(props.redraws > 2){
+            return btnState.info;
+        }
+        if(props.redraws === 2){
+            return btnState.warning;
+        }
+        if(props.redraws <= 1){
+            return btnState.danger;
+        }
+    }
+    // ; danger, warning, btn-info
     return(
         <div className='buttons-container'>
             <div>
                 {button}
-                <button className='btn' onClick={props.redraw}>
+                <button className={`btn btn-${btnClass()}`} onClick={props.redraw}>
                     <i className="fas fa-sync-alt"></i>
                     <strong style={{marginLeft: 10}}>{props.redraws}</strong>
                 </button>
@@ -101,7 +120,7 @@ const Done = (props) =>{
         <div className='done-status text-center'>
             <div className="done-status-content">
                 <h2>{props.doneStatus}</h2>
-                <button className="btn btn-warning pull-left" onClick={props.resetGame}>Play again [this level]!</button>
+                <button className="btn btn-warning pull-left" onClick={props.resetGame}>Play again [from ZERO level]!</button>
                 <button className="btn btn-success pull-right" onClick={props.resetGame}>Go to next level -></button>
             </div>
         </div>
@@ -168,17 +187,18 @@ class Timer extends Component {
 };
 
 class Game extends Component {
-    static randomNumber = () =>  1 + Math.floor(Math.random() * 9);
+    static randomNumber = (number) =>  1 + Math.floor(Math.random() * number);
+    // let initStars = this.props.initStars;
     static initState = () => ({
-        randomStars: Game.randomNumber(),
+        randomStars: Game.randomNumber(this.props.initStars),
         selectedNumbers: [],
         usedNumbers: [],
         answerIsCorrect: null,
-        redraws: 5,
-        levelStars: 9,
+        redraws: this.props.initStars - 3,
+        levelStars: this.props.initStars,
         doneStatus: '',
         renderGame: false,
-        listNumber:  _.range(1,10)
+        listNumber:  _.range(1,this.props.initStars+1)
     });
     state = Game.initState();
     resetGame = () => this.setState(Game.initState());
@@ -193,7 +213,7 @@ class Game extends Component {
             usedNumbers: prevState.usedNumbers.concat(prevState.selectedNumbers),
             selectedNumbers: [],
             answerIsCorrect: null,
-            randomStars: Game.randomNumber()
+            randomStars: Game.randomNumber(prevState.levelStars)
         }), this.updateDoneStatus);
     };
     selectNumber = (clickedNumber) =>{
@@ -214,7 +234,7 @@ class Game extends Component {
     redraw = () => {
         if(this.state.redraws === 0){return;}
             this.setState(prevState => ({
-                randomStars: Game.randomNumber(),
+                randomStars: Game.randomNumber(prevState.levelStars),
                 answerIsCorrect: null,
                 selectedNumbers: [],
                 redraws: prevState.redraws - 1
@@ -230,7 +250,7 @@ class Game extends Component {
 
     updateDoneStatus = () => {
         this.setState(prevState => {
-            if (prevState.usedNumbers.length === 9) {
+            if (prevState.usedNumbers.length === this.state.levelStars) {
                 return { doneStatus: 'You passed the level!' };
             }
             if (prevState.redraws === 0 && !this.possibleSolutions(prevState)) {
@@ -243,6 +263,19 @@ class Game extends Component {
             renderGame: true
         })
     };
+    nextLevel = () => {
+        if (this.state.levelStars >= 30){return;}
+        this.setState(prevState => ({
+            randomStars: Game.randomNumber(prevState.levelStars + 3),
+            selectedNumbers: [],
+            usedNumbers: [],
+            answerIsCorrect: null,
+            redraws: prevState.levelStars + 3 - (Math.trunc(prevState.levelStars / 3) + 2),
+            levelStars: prevState.levelStars + 3,
+            doneStatus: '',
+            listNumber:  _.range(1, prevState.levelStars + 4)
+        }));
+    };
 
     render() {
         const {
@@ -252,8 +285,7 @@ class Game extends Component {
             answerIsCorrect,
             usedNumbers,
             redraws,
-            doneStatus,
-            levelStars
+            doneStatus
         } = this.state;
         return (
             <div className="scene inner-scene">
@@ -270,9 +302,10 @@ class Game extends Component {
                         />
                         <Answer selectedNumbers={selectedNumbers} unselectNumber={this.unselectNumber}/>
                         <div className="cf"></div>
+                        <button className='btn btn-info' onClick={this.nextLevel}>go to next level</button>
                     </div>
                 <Numbers listNumber={listNumber} selectNumber={this.selectNumber} selectedNumbers={selectedNumbers} usedNumbers={usedNumbers}/>
-                {doneStatus ?<Done doneStatus={doneStatus} resetGame={this.resetGame}/> : ''}
+                {doneStatus ? <Done doneStatus={doneStatus} resetGame={this.resetGame}/> : ''}
             </div>
         )
     }
