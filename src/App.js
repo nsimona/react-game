@@ -7,20 +7,16 @@ import Game from './Game';
 class App extends Component {
     state ={
         renderGame: false,
-        initialStars: 0
+        initialStars: 8
     };
 
-    initGame= (stars) => {
+    renderGame = stars => {
         this.setState({
-            initialStars: stars
-        })
-    };
-
-    renderGame = () => {
-        console.log(this.state.renderGame);
-        this.setState({
+            initialStars: stars,
             renderGame: true
+
         });
+        console.log('stars are', this.state.initialStars, 'should be', stars);
     };
     render() {
         return (
@@ -28,8 +24,8 @@ class App extends Component {
               {/*<Game/>*/}
               {
                   this.state.renderGame ?
-                      <Game initalStars={this.state.initialStars}/> :
-                      <Home renderGame={this.renderGame} initGame={this.initGame}/>
+                      <Game initStars={this.state.initialStars}/> :
+                      <Home renderGame={this.renderGame}/>
               }
           </div>
         );

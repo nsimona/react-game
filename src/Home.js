@@ -3,22 +3,22 @@ import './App.css';
 
 class InitGameState extends Component {
     state={
-      age: ''
+      age: 6
     };
     handleChange = (e) =>{
       this.setState({
           age: e.target.value
-      })
+      });
     };
     renderGame = () => {
-        this.props.initStars(this.state.age);
+        this.props.renderGame(this.state.age);
     };
     render(){
         return (
             <div className="init-game-overlay">
                 <div className="init-game-content">
                     <label htmlFor="age">enter your age</label>
-                    <input type="text" id="age" value={this.state.age} onChange={this.handleChange}/>
+                    <input type="text" id="age" onChange={this.handleChange}/>
                     <button onClick={this.renderGame}>go to first level</button>
                 </div>
             </div>
@@ -30,23 +30,23 @@ class Home extends Component {
     constructor(props) {
         super(props);
         this.state={
-            renderFirstState: '',
+            renderFirstState: 18,
             showInput: false
         }
     }
-    renderGame = () =>{
-       return this.props.renderGame;
-    };
-    enterAge = () => {
+    renderGame = (firstState) => {
         this.setState({
-            showInput: true
+           renderFirstState: firstState
         });
+        console.log('my age is', this.state.renderFirstState, firstState.value)
+        // this.props.renderGame(this.state.renderFirstState)
     };
-    initStars = (starsNumber) => {
+
+    enterAge = (age) => {
         this.setState({
-           renderFirstState: starsNumber
+            showInput: true,
+            renderFirstState: age,
         });
-        console.log(this.state.renderFirstState);
     };
     render() {
     return (
@@ -54,9 +54,10 @@ class Home extends Component {
           <img src="./images/logo.png" alt="" className="main-screen-logo"/>
           <img src="./images/astronaut.png" alt="astronaut" className='main-screen-astronaut'/>
           <button className="play-btn" onClick={this.enterAge}>Play</button>
+          {/*<button className="play-btn" onClick={this.renderGame}>Play</button>*/}
           {
               this.state.showInput ?
-                  <InitGameState initStars={this.initStars} renderGame={this.renderGame}/> :
+                  <InitGameState renderGame={this.renderGame}/> :
                   ''
           }
       </div>

@@ -189,19 +189,62 @@ class Timer extends Component {
 class Game extends Component {
     static randomNumber = (number) =>  1 + Math.floor(Math.random() * number);
     // let initStars = this.props.initStars;
-    static initState = () => ({
-        randomStars: Game.randomNumber(this.props.initStars),
-        selectedNumbers: [],
-        usedNumbers: [],
-        answerIsCorrect: null,
-        redraws: this.props.initStars - 3,
-        levelStars: this.props.initStars,
-        doneStatus: '',
-        renderGame: false,
-        listNumber:  _.range(1,this.props.initStars+1)
-    });
-    state = Game.initState();
-    resetGame = () => this.setState(Game.initState());
+    // static initState = () => ({
+    //     randomStars: Game.randomNumber(this.props.initStars),
+    //     selectedNumbers: [],
+    //     usedNumbers: [],
+    //     answerIsCorrect: null,
+    //     redraws: this.props.initStars - 3,
+    //     levelStars: this.props.initStars,
+    //     doneStatus: '',
+    //     renderGame: false,
+    //     listNumber:  _.range(1,this.props.initStars+1)
+    // });
+    // state = Game.initState();
+
+    constructor(props){
+        super(props);
+        let stars = 8;
+        this.state={
+            randomStars: Game.randomNumber(stars),
+            selectedNumbers: [],
+            usedNumbers: [],
+            answerIsCorrect: null,
+            redraws: stars - 3,
+            levelStars: stars,
+            doneStatus: '',
+            renderGame: false,
+            listNumber:  _.range(1,stars +1)
+        }
+    }
+    componentDidMount() {
+        console.log(this.props.initStars)
+        this.initGame(this.props.initStars)
+    }
+    initGame = (initStars) => {
+        this.setState({
+            randomStars: Game.randomNumber(initStars),
+            selectedNumbers: [],
+            usedNumbers: [],
+            answerIsCorrect: null,
+            redraws: initStars - 3,
+            levelStars: initStars,
+            doneStatus: '',
+            renderGame: false,
+            listNumber:  _.range(1, initStars + 1)
+        })
+    };
+    // resetGame = () => this.setState({
+    //     randomStars: Game.randomNumber(this.props.initStars),
+    //     selectedNumbers: [],
+    //     usedNumbers: [],
+    //     answerIsCorrect: null,
+    //     redraws: this.props.initStars - 3,
+    //     levelStars: this.props.initStars,
+    //     doneStatus: '',
+    //     renderGame: false,
+    //     listNumber:  _.range(1,this.props.initStars+1)
+    // });
     checkAnswer = () => {
       this.setState(prevState => ({
           answerIsCorrect: prevState.randomStars ===
