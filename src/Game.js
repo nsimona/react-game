@@ -22,9 +22,12 @@ let possibleCombinationSum = function(arr, n) {
 };
 
 class Stars extends Component {
+    shouldComponentUpdate(nextProps) {
+        return this.props.randomStars !== nextProps.randomStars;
+    };
     renderStars = () => {
         let stars =[];
-        for (let i=0; i< this.props.randomStars; i++){
+        for (let i=0; i< this.props.randomStars ; i++){
             let star = _.random(1, 9);
             stars.push(<img key={i} src={`images/stars/${star}.png`} alt={`star ${star}`}/>)
         }
@@ -49,45 +52,64 @@ const Button =(props) => {
             button = <button className='btn btn-danger'><i className='fa fa-times'></i></button>;
             break;
         default:
-            button =  <button className='btn' onClick={props.checkAnswer} disabled={props.selectedNumbers.length === 0}>=</button>
+            button =  <button className='btn' onClick={props.checkAnswer} disabled={props.selectedNumbers.length === 0} style={{color: '#000'}}>=</button>
     }
-    //let btnState; danger, warning
+    let btnState={
+        danger: 'danger',
+        warning: 'warning',
+        info: 'info'
+    };
+    let btnClass = () =>{
+        if(props.redraws > 2){
+            return btnState.info;
+        }
+        if(props.redraws === 2){
+            return btnState.warning;
+        }
+        if(props.redraws <= 1){
+            return btnState.danger;
+        }
+    }
+    // ; danger, warning, btn-info
     return(
         <div className='buttons-container'>
-            <button className='btn btn-lg'>=</button>
-            <button className= 'btn btn-info'>
-                <i className="fas fa-sync-alt"></i>
-                <strong style={{marginLeft: 10}}>5</strong>
-            </button>
+            <div>
+                {button}
+                <button className={`btn btn-${btnClass()}`} onClick={props.redraw}>
+                    <i className="fas fa-sync-alt"></i>
+                    <strong style={{marginLeft: 10}}>{props.redraws}</strong>
+                </button>
             </div>
+        </div>
     )
 };
 
 const Answer =(props) => {
     return(
-        <div className='col-md-5'>
+        <div className='answer-container'>
             {props.selectedNumbers.map((number, i) =>
-            <span className="number" key={i} /*onClick={() => props.unselectNumber(number)}*/ >{number}</span>
+            <span className="number" key={i} onClick={() => props.unselectNumber(number)} >{number}</span>
             )}
         </div>
     )
 };
 
 const Numbers = (props) => {
-    // const numberClassName= (number)=>{
-    //     if (props.selectedNumbers.indexOf(number) >= 0) {return 'selected'}
-    //     if (props.usedNumbers.indexOf(number) >= 0) {return 'used'}
-    // };
+    const numberClassName= (number)=>{
+        if (props.selectedNumbers.indexOf(number) >= 0) {return 'selected'}
+        if (props.usedNumbers.indexOf(number) >= 0) {return 'used'}
+    };
 
-    return(
+    return (
         <div className="numbers-container">
             <div>
+                {console.log(props.listNumber)}
                 {props.listNumber.map((number, i) =>
-                    <span className="number"
-                          key={i} /*className={numberClassName(number)}*/
-                          onClick={() => props.selectNumber(number)}>
-                        {number}
-                        </span>
+                <span
+                key={i} className ={`number ${numberClassName(number)}`}
+                onClick={() => props.usedNumbers.indexOf(number) >= 0 ? false : props.selectNumber(number)}>
+                {number}
+                </span>
                 )}
             </div>
         </div>
@@ -96,9 +118,12 @@ const Numbers = (props) => {
 
 const Done = (props) =>{
     return (
-        <div className='text-center'>
-            <h2>{props.doneStatus}</h2>
-            <button className="btn btn-secondary" onClick={props.resetGame}>Play again!</button>
+        <div className='done-status text-center'>
+            <div className="done-status-content">
+                <h2>{props.doneStatus}</h2>
+                <button className="btn btn-warning pull-left" onClick={props.resetGame}>Play again [from ZERO level]!</button>
+                <button className="btn btn-success pull-right" onClick={props.resetGame}>Go to next level -></button>
+            </div>
         </div>
     )
 };
@@ -163,20 +188,65 @@ class Timer extends Component {
 };
 
 class Game extends Component {
-    static randomNumber = () =>  1 + Math.floor(Math.random() * 9);
-    static initState = () => ({
-        randomStars: Game.randomNumber(),
-        selectedNumbers: [],
-        usedNumbers: [],
-        answerIsCorrect: null,
-        redraws: 5,
-        levelStars: 9,
-        doneStatus: '',
-        renderGame: false,
-        listNumber:  _.range(1,10)
-    });
-    state = Game.initState();
-    resetGame = () => this.setState(Game.initState());
+    static randomNumber = (number) =>  1 + Math.floor(Math.random() * number);
+    // let initStars = this.props.initStars;
+    // static initState = () => ({
+    //     randomStars: Game.randomNumber(this.props.initStars),
+    //     selectedNumbers: [],
+    //     usedNumbers: [],
+    //     answerIsCorrect: null,
+    //     redraws: this.props.initStars - 3,
+    //     levelStars: this.props.initStars,
+    //     doneStatus: '',
+    //     renderGame: false,
+    //     listNumber:  _.range(1,this.props.initStars+1)
+    // });
+    // state = Game.initState();
+
+    constructor(props){
+        super(props);
+        this.state={
+            randomStars: 0,
+            selectedNumbers: [],
+            usedNumbers: [],
+            answerIsCorrect: null,
+            redraws: 0,
+            levelStars: 0,
+            doneStatus: '',
+            renderGame: false,
+            listNumber: []
+        }
+    }
+    componentDidMount() {
+
+        //console.log('lodash array',_.range(1, Number(this.props.initStars + 1)) );
+        this.initGame(this.props.initStars);
+    }
+    initGame = (initStars) => {
+        let starsInc = Number(initStars)  + 1 ;
+        this.setState({
+            randomStars: Game.randomNumber(initStars),
+            selectedNumbers: [],
+            usedNumbers: [],
+            answerIsCorrect: null,
+            redraws: initStars - 3,
+            levelStars: initStars,
+            doneStatus: '',
+            renderGame: false,
+            listNumber:  _.range(1, starsInc)
+        })
+    };
+    // resetGame = () => this.setState({
+    //     randomStars: Game.randomNumber(this.props.initStars),
+    //     selectedNumbers: [],
+    //     usedNumbers: [],
+    //     answerIsCorrect: null,
+    //     redraws: this.props.initStars - 3,
+    //     levelStars: this.props.initStars,
+    //     doneStatus: '',
+    //     renderGame: false,
+    //     listNumber:  _.range(1,this.props.initStars+1)
+    // });
     checkAnswer = () => {
       this.setState(prevState => ({
           answerIsCorrect: prevState.randomStars ===
@@ -188,13 +258,13 @@ class Game extends Component {
             usedNumbers: prevState.usedNumbers.concat(prevState.selectedNumbers),
             selectedNumbers: [],
             answerIsCorrect: null,
-            randomStars: Game.randomNumber()
+            randomStars: Game.randomNumber(prevState.levelStars)
         }), this.updateDoneStatus);
     };
     selectNumber = (clickedNumber) =>{
-        //if (this.state.selectedNumbers.indexOf(clickedNumber) >= 0) { return;}
+        if (this.state.selectedNumbers.indexOf(clickedNumber) >= 0) { return;}
         this.setState(prevState => ({
-            //answerIsCorrect: null,
+            answerIsCorrect: null,
             selectedNumbers: prevState.selectedNumbers.concat(clickedNumber)
         }))
     };
@@ -202,15 +272,14 @@ class Game extends Component {
     unselectNumber = (clickedNumber) => {
         this.setState(prevState => ({
             answerIsCorrect: null,
-            selectedNumbers: prevState.selectedNumbers.filter(number => number !== clickedNumber),
-            randomStars: Game.randomNumber()
+            selectedNumbers: prevState.selectedNumbers.filter(number => number !== clickedNumber)
         }), this.updateDoneStatus);
     };
 
     redraw = () => {
         if(this.state.redraws === 0){return;}
             this.setState(prevState => ({
-                randomStars: Game.randomNumber(),
+                randomStars: Game.randomNumber(prevState.levelStars),
                 answerIsCorrect: null,
                 selectedNumbers: [],
                 redraws: prevState.redraws - 1
@@ -226,8 +295,8 @@ class Game extends Component {
 
     updateDoneStatus = () => {
         this.setState(prevState => {
-            if (prevState.usedNumbers.length === 9) {
-                return { doneStatus: 'You rule!' };
+            if (prevState.usedNumbers.length === this.state.levelStars) {
+                return { doneStatus: 'You passed the level!' };
             }
             if (prevState.redraws === 0 && !this.possibleSolutions(prevState)) {
                 return { doneStatus: 'Game Over!' };
@@ -239,38 +308,51 @@ class Game extends Component {
             renderGame: true
         })
     };
+    nextLevel = () => {
+        if (this.state.levelStars >= 30){return;}
+        console.log('before',this.state.listNumber);
+        this.setState(prevState => ({
+            randomStars: Game.randomNumber(prevState.levelStars + 3),
+            selectedNumbers: [],
+            usedNumbers: [],
+            answerIsCorrect: null,
+            redraws: Number(prevState.levelStars) + 3 - (Math.trunc((Number(prevState.levelStars)) / 3) + 2),
+            levelStars: Number(prevState.levelStars) + 1 + 3,
+            doneStatus: '',
+            listNumber:  _.range(1, (Number(prevState.levelStars) + 4) )
+        }));
+        console.log('after',this.state.listNumber);
+    };
 
     render() {
         const {
             randomStars,
             listNumber,
             selectedNumbers,
-            levelStars
+            answerIsCorrect,
+            usedNumbers,
+            redraws,
+            doneStatus
         } = this.state;
         return (
             <div className="scene inner-scene">
                     <img src="./images/logo.png" alt="" className="main-screen-logo"/>
-                    <Timer />
+                    {/*<Timer />*/}
                     <div className="game-container">
                         <Stars randomStars={randomStars}/>
                         <Button selectedNumbers={selectedNumbers}
-                                //answerIsCorrect={this.state.answerIsCorrect}
-                                // checkAnswer={this.checkAnswer}
-                                // acceptAnswer = {this.acceptAnswer}
-                                // redraw={this.redraw}
-                                // redraws={this.state.redraws}
+                                answerIsCorrect={answerIsCorrect}
+                                checkAnswer={this.checkAnswer}
+                                acceptAnswer = {this.acceptAnswer}
+                                redraw={this.redraw}
+                                redraws={redraws}
                         />
-                        <Answer selectedNumbers={selectedNumbers}/>
-                        <div className="cf"></div>
-                        {/*<p>How many stars do you see? Count the stars and lickc the number or sum of numbers that represents the stars.</p>*/}
-                        <Numbers listNumber={listNumber} selectNumber={this.selectNumber}/>
+                        <Answer selectedNumbers={selectedNumbers} unselectNumber={this.unselectNumber}/>
+                        <div className="cf">&nbsp;</div>
+                        <button className='btn btn-info' onClick={this.nextLevel}>go to next level</button>
                     </div>
-                {/*{*/}
-                    {/*this.state.doneStatus ?*/}
-                        {/*<Done doneStatus={this.state.doneStatus} resetGame={this.resetGame}/> :*/}
-                        {/*<Numbers selectedNumbers={this.state.selectedNumbers} selectNumber={this.selectNumber} usedNumbers ={this.state.usedNumbers}/>*/}
-                {/*}*/}
-
+                <Numbers listNumber={listNumber} selectNumber={this.selectNumber} selectedNumbers={selectedNumbers} usedNumbers={usedNumbers}/>
+                {doneStatus ? <Done doneStatus={doneStatus} resetGame={this.resetGame}/> : ''}
             </div>
         )
     }

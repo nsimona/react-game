@@ -6,22 +6,26 @@ import Game from './Game';
 
 class App extends Component {
     state ={
-        renderGame: false
+        renderGame: false,
+        initialStars: 8
     };
-    renderGame = () => {
+
+    renderGame = stars => {
         this.setState({
+            initialStars: stars,
             renderGame: true
+
         });
+        console.log('stars are', this.state.initialStars, 'should be', stars);
     };
     render() {
         return (
           <div className="App">
-              <Game/>
-              {/*{*/}
-                  {/*this.state.renderGame ?*/}
-                      {/*<Game/> :*/}
-                      {/*<Home renderGame={this.renderGame}/>*/}
-              {/*}*/}
+              {
+                  this.state.renderGame ?
+                      <Game initStars={this.state.initialStars}/> :
+                      <Home renderGame={this.renderGame}/>
+              }
           </div>
         );
     }
