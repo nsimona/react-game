@@ -21,7 +21,6 @@ class App extends Component {
     render() {
         return (
           <div className="App">
-              {/*<Game/>*/}
               {
                   this.state.renderGame ?
                       <Game initStars={this.state.initialStars}/> :
