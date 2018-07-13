@@ -7,25 +7,26 @@ import Game from './Game';
 class App extends Component {
     state ={
         renderGame: false,
-        initialStars: 8
+        initStars: 3
     };
 
     renderGame = stars => {
         this.setState({
-            initialStars: stars,
+            initStars: stars,
             renderGame: true
-
         });
-        console.log('stars are', this.state.initialStars, 'should be', stars);
     };
+
     render() {
+        let play = <Home renderGame={this.renderGame}/>;
+        if(this.state.renderGame && this.state.initStars >= 6) {
+            play = <Game initStars={this.state.initStars}/>;
+        }
+        //for dev env
+        //let play = <Game initStars={this.state.initStars}/>
         return (
           <div className="App">
-              {
-                  this.state.renderGame ?
-                      <Game initStars={this.state.initialStars}/> :
-                      <Home renderGame={this.renderGame}/>
-              }
+              {play}
           </div>
         );
     }
