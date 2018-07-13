@@ -1,38 +1,31 @@
 import React, { Component } from 'react';
-import './App.css';
 
-class InitGameState extends Component {
+class InitGame extends Component {
     constructor(props){
         super(props);
         this.handleChange = this.handleChange.bind(this);
         this.state={
-            age: 6,
-            render: false
+            age: 6
         };
     };
 
     handleChange = (e) =>{
         this.setState({
-            age: e.target.value,
-            render: true
-
+            age: e.target.value
         });
     };
     renderGame = (e) => {
         e.preventDefault();
-        if (this.state.render) {
-            this.props.renderGame(this.state.age);
-            //console.log('test meee', this.state.age);
-        }
+        this.props.renderGame(this.state.age);
     };
     render(){
         return (
             <div className="init-game-overlay">
                 <div className="init-game-content">
-                    <label htmlFor="age">enter your age</label>
-                    <form action="" onSubmit={this.renderGame}>
+                    <form onSubmit={this.renderGame}>
+                        <label htmlFor="age">enter your age</label>
                         <input type="text" id="age" onChange={this.handleChange}/>
-                        <button>go to first level</button>
+                        <button className="btn btn-success">go to first level</button>
                     </form>
                 </div>
             </div>
@@ -44,40 +37,34 @@ class Home extends Component {
     constructor(props) {
         super(props);
         this.state={
-            renderFirstState: 0,
+            age: 0,
             showInput: false
-        }
-        this.renderGame = this.renderGame.bind(this);
+        };
+        this.initGame = this.initGame.bind(this);
     }
-    renderGame = (firstState) => {
+    initGame = (initState) => {
         this.setState({
-           renderFirstState: firstState
-        }, () => {
-            this.props.renderGame(this.state.renderFirstState)
-        });
-        console.log('my age is', firstState)
-        //this.props.renderGame(this.state.renderFirstState)
+           age: initState
+        }, () => this.props.renderGame(this.state.age));
     };
-
     enterAge = () => {
         this.setState({
-            showInput: true
+            showForm: true
         });
     };
     render() {
-    return (
-      <div className="main scene">
-          <img src="./images/logo.png" alt="" className="main-screen-logo"/>
-          <img src="./images/astronaut.png" alt="astronaut" className='main-screen-astronaut'/>
-          <button className="play-btn" onClick={this.enterAge}>Play</button>
-          {/*<button className="play-btn" onClick={this.renderGame}>Play</button>*/}
-          {
-              this.state.showInput ?
-                  <InitGameState renderGame={this.renderGame}/> :
-                  ''
-          }
-      </div>
-    );
+        let agePopup = '';
+        if(this.state.showForm) {
+            agePopup = <InitGame renderGame={this.initGame}/>;
+        }
+        return (
+          <div className="main scene">
+              <img src="./images/logo.png" alt="" className="main-screen-logo"/>
+              <img src="./images/astronaut.png" alt="astronaut" className='main-screen-astronaut'/>
+              <button className="play-btn" onClick={this.enterAge}>Play</button>
+              {agePopup}
+          </div>
+        );
     }
 }
 
