@@ -35,7 +35,8 @@ class Game extends Component {
         answerIsCorrect: null,
         redraws: initstars - 3 || 0,
         levelStars: initstars || 0,
-        doneStatus: '',
+        endLevel: false,
+        doneStatus: false,
         renderGame: false,
         listNumber:  _.range(1, initstars + 1) || 0
     });
@@ -92,10 +93,10 @@ class Game extends Component {
     updateStatus = () => {
         this.setState(prevState => {
             if (prevState.usedNumbers.length === this.state.levelStars) {
-                return true;
+                return {doneStatus: true, endLevel: true}
             }
             if (prevState.redraws === 0 && !this.possibleSolutions(prevState)) {
-                return false;
+                return {doneStatus: false, endLevel: true}
             }
         });
     };
@@ -112,6 +113,7 @@ class Game extends Component {
             redraws: Number(prevState.levelStars) + 3 - (Math.trunc((Number(prevState.levelStars)) / 3) + 2),
             levelStars: Number(prevState.levelStars) + 1 + 3,
             doneStatus: '',
+            endLevel: false,
             listNumber:  _.range(1, (Number(prevState.levelStars) + 4) )
         }));
     };
@@ -123,11 +125,12 @@ class Game extends Component {
             listNumber,
             selectedNumbers,
             answerIsCorrect,
+            endLevel,
             usedNumbers,
             redraws,
             doneStatus
         } = this.state;
-        if (doneStatus) {
+        if (endLevel) {
             status = <Status doneStatus={doneStatus} resetGame={this.resetGame} nextLevel={this.nextLevel}/>;
         }
         return (
@@ -145,8 +148,8 @@ class Game extends Component {
                         />
                         <Answer selectedNumbers={selectedNumbers} unselectNumber={this.unselectNumber}/>
                         <div className="cf">&nbsp;</div>
-                        <button className='btn btn-warning' onClick={this.resetGame}>reset</button>
-                        <button className='btn btn-info' onClick={this.nextLevel}>go to next level</button>
+                        {/*<button className='btn btn-warning' onClick={this.resetGame}>reset</button>*/}
+                        {/*<button className='btn btn-info' onClick={this.nextLevel}>go to next level</button>*/}
                     </div>
                 <Numbers listNumber={listNumber} selectNumber={this.selectNumber} selectedNumbers={selectedNumbers} usedNumbers={usedNumbers}/>
                 {status}
